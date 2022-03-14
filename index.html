@@ -12,7 +12,8 @@
 
       #messages { list-style-type: none; margin: 0; padding: 0; }
       #messages > li { padding: 0.5rem 1rem; }
-      #messages > li:nth-child(odd) { background: #efefef; }
+      #messages > li:nth-child(odd):not(.notify) { background: #efefef; }
+      #messages > li.notify { background: #b7c1ac; color: #888; }
     </style>
   </head>
   <body>
@@ -29,13 +30,21 @@
 
       let socket = io();
 
-      socket.on('pong', () => {
-        console.log('PONG');
-      })
-
-      socket.on('notify', (data) => {
-        console.log('NOTIFY : ' + data);
+      socket.on('enter', (sid) => {
+        const li = document.createElement('li');
+        const now = (new Date()).toLocaleString('fr-FR');
+        li.classList.add('notify');
+        li.innerText = `${now} : @${sid} enters the chat (Hello o/)`
+        messages.appendChild(li);
       });
+
+      socket.on('leave', (sid) => {
+        const li = document.createElement('li');
+        const now = (new Date()).toLocaleString('fr-FR');
+        li.classList.add('notify');
+        li.innerText = `${now} : @${sid} leaves the chat (Goodbye \\o)`;
+        messages.appendChild(li);
+      })
 
       socket.on('message', (data) => {
         const li = document.createElement('li');
@@ -46,6 +55,7 @@
       form.addEventListener('submit', (ev) => {
         ev.preventDefault();
         socket.emit('message', input.value);
+        input.value = '';
       })
     </script>
   </body>

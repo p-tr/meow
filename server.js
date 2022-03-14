@@ -11,8 +11,24 @@ app.get('/', (req, res) => {
 
 io.on('connection', (socket) => {
   // ici, on peut authentifier l'utilisateur
-  console.log('a user connected');
+  console.log(`Socket ${socket.id} connected`);
+  io.emit('notify', `Socket ${socket.id} connected`);
 
+  //socket.broadcast.emit('notify', `Broadcast from ${socket.id}`);
+
+  socket.on('disconnect', () => {
+    console.log(`Socket ${socket.id} disconnected`)
+  })
+
+  socket.on('message', (data) => {
+    const now = (new Date()).toLocaleString('fr-FR');
+    io.emit('message', `[${now}] ${socket.id} : ${data}`);
+  })
+
+  //socket.on('ping', () => {
+  //  console.log('PING');
+  //  socket.emit('pong');
+  //})
 });
 
 server.listen(8080, () => {
